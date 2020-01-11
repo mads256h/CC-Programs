@@ -6,15 +6,17 @@ local modemSide = "top"
 local updateRate = 1
 
 -- Moving global objects to local for optimization
+local peripheral = peripheral
+local isPresent = peripheral.isPresent
 local error = error
 local rednet = rednet
 local broadcast = rednet.broadcast
 local sleep = sleep
 
 -- Check peripherals are where we expect them to be
-if not peripheral.isPresent(tankSide) then
+if not isPresent(tankSide) then
 	error("Tank is not present")
-elseif not peripheral.isPresent(modemSide) then
+elseif not isPresent(modemSide) then
 	error("Modem is not present")
 end
 
