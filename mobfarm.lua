@@ -1,5 +1,11 @@
+-- Monitors and controls different parts of a mobfarm
+-- Assumes that a monitor is attached to the top of the computer
+-- fans are attach via redstone on the bottom
+-- and that a modem is attached on the back
+
 local monitorSide = "top"
 local fanSide = "bottom"
+local modemSide = "back"
 local apiPath = "/usr/apis/touchpoint"
 
 -- Moving global objects to local for optimization
@@ -131,6 +137,8 @@ function drawTopItems()
 	end
 	
 end
+
+rednet.open(modemSide)
 
 local t = touchpoint.new(monitorSide)
 
