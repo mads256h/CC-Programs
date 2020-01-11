@@ -22,10 +22,11 @@ end
 
 -- Setup tank and rednet
 local tank = peripheral.wrap(tankSide)
+local tankGetTankInfo = tank.getTankInfo
 rednet.open(modemSide)
 
 while true do
-	local tankInfo = tank.getTankInfo("unknown")[1]
+	local tankInfo = tankGetTankInfo("unknown")[1]
 	
 	local fluidCapacity = tankInfo.capacity
 	local contents = tankInfo.contents
