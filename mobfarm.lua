@@ -11,12 +11,16 @@ local apiPath = "/usr/apis/touchpoint"
 -- Moving global objects to local for optimization
 local string = string
 local stringRep = string.rep
+local fs = fs
 local fsExists = fs.exists
+local fsOpen = fs.open
 local print = print
 local shellRun = shell.run
+local peripheral = peripheral
+local peripheralIsPresent = peripheral.isPresent
 local os = os
 local osLoadAPI = os.loadAPI
-local osPullEvent = os.pullEvent
+local osPullEventRaw = os.pullEventRaw
 local colors = colors
 local colorsBlack = colors.black
 local colorsGreen = colors.green
@@ -59,10 +63,17 @@ end
 
 osLoadAPI("/usr/apis/touchpoint")
 
+-- Check peripherals are where we expect them to be
+if not peripheralIsPresent(monitorSide) then
+	error("Monitor is not present")
+elseif not peripheralIsPresent(modemSide) then
+	error("Modem is not present")
+end
+
 local mon = peripheral.wrap(monitorSide)
 
 local tankLevel = 0
-function drawGraph()
+local function drawGraph()
 	
 	-- Draw essense label
 	mon.setBackgroundColor(colorsBlack)
@@ -97,7 +108,7 @@ end
 
 local totalItems = 0
 local items = {}
-function drawTopItems()
+local function drawTopItems()
 	-- Draw top items label
 	mon.setBackgroundColor(colorsBlack)
 	mon.setCursorPos(2,2)
@@ -140,13 +151,13 @@ end
 
 rednet.open(modemSide)
 
-if not fs.exists("items") then
-	local file = fs.open("items", "w")
+if not fsExists("items") then
+	local file = fsOpen("items", "w")
 	file.write("")
 	file.close()
 end
 
-local itemsFile = fs.open("items", "r")
+local itemsFile = fsOpen("items", "r")
 
 items = textutils.unserialize(itemsFile.readAll() or "") or {}
 
@@ -166,10 +177,11 @@ t:draw()
 drawGraph()
 drawTopItems()
 
+-- Event loop
 while true do
-	local event = {t:handleEvents(os.pullEventRaw())}
+	local event = {t:handleEvents(osPullEventRaw())}
 	if event[1] == "terminate" then
-		itemsFile = fs.open("items", "w")
+		itemsFile = fsOpen("items", "w")
 		itemsFile.write(textutils.serialize(items))
 		itemsFile.close()
 		return
@@ -192,9 +204,9 @@ while true do
 			tankLevel = message.amount
 			drawGraph()
 		elseif message.type == "items" then
-			local item = message.item
-			local count = item.qty
-			local name = item.display_name
+			local messageItem = message.item
+			local count = messageItem.qty
+			local name = messageItem.display_name
 			totalItems = totalItems + count
 			
 			local found = false
