@@ -1,0 +1,20 @@
+name: linter
+
+on: [push]
+
+# name, on, etc...
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # ...
+    - name: Lint Lua code
+      run: |
+        # Download illuaminate
+        test -d bin || mkdir bin
+        test -f bin/illuaminate || wget -q -Obin/illuaminate https://squiddev.cc/illuaminate/bin/illuaminate
+        chmod +x bin/illuaminate
+        # And run it
+        GITHUB_TOKEN=${{ secrets.GITHUB_TOKEN }} bin/illuaminate lint --github
