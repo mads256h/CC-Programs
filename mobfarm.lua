@@ -126,7 +126,7 @@ function drawTopItems()
 	
 	for i = 1, itemsToDraw do
 		if i > topItemsHeight then
-			mon.setCursorPos(2 + (topItemsWidth / 2), i + 4 - topItemsHeight)
+			mon.setCursorPos(2 + math.ceil(topItemsWidth / 2), i + 4 - topItemsHeight)
 		else
 			mon.setCursorPos(2, i + 4)
 		end
@@ -140,6 +140,24 @@ end
 
 rednet.open(modemSide)
 
+if not fs.exists("items") then
+	local file = fs.open("items", "w")
+	file.write("")
+	file.close()
+end
+
+local itemsFile = fs.open("items", "r")
+
+items = textutils.unserialize(itemsFile.readAll() or "") or {}
+
+for i = 1, #items do
+	local item = items[i]
+	totalItems = totalItems + item.count
+end
+
+itemsFile.close()
+
+
 local t = touchpoint.new(monitorSide)
 
 t:add("fan",     nil, 2,  21, 25, 25, colors.red, colors.lime)
@@ -149,8 +167,13 @@ drawGraph()
 drawTopItems()
 
 while true do
-	local event = {t:handleEvents(os.pullEvent())}
-	if event[1] == "button_click" then
+	local event = {t:handleEvents(os.pullEventRaw())}
+	if event[1] == "terminate" then
+		itemsFile = fs.open("items", "w")
+		itemsFile.write(textutils.serialize(items))
+		itemsFile.close()
+		return
+	elseif event[1] == "button_click" then
 		local buttonName = event[2]
 		t:toggleButton(buttonName)
 		if buttonName == "fan" then
@@ -195,6 +218,7 @@ while true do
 				end
 				return a.count > b.count
 			end)
+			
 			drawTopItems()
 		end
 	end
