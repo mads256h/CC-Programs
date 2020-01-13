@@ -2,7 +2,6 @@
 -- My particular usage is enabling lanterns so the mobfarm stops
 -- Assumes that a modem is attached to the bottom
 -- And that the redstone target is on the top
-
 local modemSide = "bottom"
 local redstoneSide = "top"
 
@@ -16,8 +15,6 @@ setOutput(redstoneSide, false)
 
 -- Event loop
 while true do
-	local event, id, message = pullEvent("rednet_message")
-	if message.type == "lantern" then
-		setOutput(redstoneSide, message.state)
-	end
+    local _, _, message = pullEvent("rednet_message")
+    if message.type == "lantern" then setOutput(redstoneSide, message.state) end
 end

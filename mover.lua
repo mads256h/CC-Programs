@@ -7,31 +7,26 @@ local modemSide = "left"
 local inventorySide = "right"
 
 -- Moving global objects to local for optimization
-local rednet = rednet
 local pullEvent = os.pullEvent
 local broadcast = rednet.broadcast
-local getItemCount = turtle.getItemCount
 local select = turtle.select
 local drop = turtle.drop
 
 -- Setup rednet and peripherals
 rednet.open(modemSide)
 local inv = peripheral.wrap(inventorySide)
+local invSize = inv.getInventorySize()
 local getStackInSlot = inv.getStackInSlot
 
 -- Event loop
 while true do
-	pullEvent("turtle_inventory")
-	for i = 1,16 do
-		local count = getItemCount(i)
-		if count > 0 then
-			select(i)
-			local item = getStackInSlot(i)
-			drop(count)
-			broadcast({
-				type = "items",
-				item = item
-			})
-		end
-	end
+    pullEvent("turtle_inventory")
+    for i = 1, invSize do
+        local item = getStackInSlot(i)
+        if item then
+            select(i)
+            drop(item.qty)
+            broadcast({type = "items", item = item})
+        end
+    end
 end
