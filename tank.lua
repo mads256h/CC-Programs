@@ -15,9 +15,9 @@ local sleep = sleep
 
 -- Check peripherals are where we expect them to be
 if not isPresent(tankSide) then
-	error("Tank is not present")
+    error("Tank is not present")
 elseif not isPresent(modemSide) then
-	error("Modem is not present")
+    error("Modem is not present")
 end
 
 -- Setup tank and rednet
@@ -26,19 +26,14 @@ local tankGetTankInfo = tank.getTankInfo
 rednet.open(modemSide)
 
 while true do
-	local tankInfo = tankGetTankInfo("unknown")[1]
-	
-	local fluidCapacity = tankInfo.capacity
-	local contents = tankInfo.contents
-	local fluidAmount = 0
-	if contents then
-		fluidAmount = contents.amount
-	end
-	
-	broadcast({
-		type = "tank",
-		amount = fluidAmount / fluidCapacity
-	})
-	
-	sleep(updateRate)
+    local tankInfo = tankGetTankInfo("unknown")[1]
+
+    local fluidCapacity = tankInfo.capacity
+    local contents = tankInfo.contents
+    local fluidAmount = 0
+    if contents then fluidAmount = contents.amount end
+
+    broadcast({type = "tank", amount = fluidAmount / fluidCapacity})
+
+    sleep(updateRate)
 end

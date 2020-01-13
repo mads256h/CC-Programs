@@ -19,7 +19,6 @@ local shellRun = shell.run
 local peripheral = peripheral
 local peripheralIsPresent = peripheral.isPresent
 local os = os
-local osLoadAPI = os.loadAPI
 local osPullEventRaw = os.pullEventRaw
 local colors = colors
 local colorsBlack = colors.black
@@ -61,7 +60,7 @@ if not fsExists(apiPath) then
 	shellRun("packman install touchpoint")
 end
 
-osLoadAPI("/usr/apis/touchpoint")
+os.loadAPI("/usr/apis/touchpoint")
 
 -- Check peripherals are where we expect them to be
 if not peripheralIsPresent(monitorSide) then

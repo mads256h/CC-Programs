@@ -1,0 +1,14 @@
+{
+    "Lua.diagnostics.globals": [
+        "peripheral",
+        "rs",
+        "rednet",
+        "fs",
+        "shell",
+        "colors",
+        "textutils",
+        "touchpoint",
+        "turtle",
+        "sleep"
+    ]
+}
