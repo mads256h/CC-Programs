@@ -1,6 +1,6 @@
 -- Monitors and controls different parts of a mobfarm
 -- Assumes that a monitor is attached to the top of the computer
--- fans are attach via redstone on the bottom
+-- fans are attached via redstone on the bottom
 -- and that a modem is attached on the back
 local monitorSide = "top"
 local fanSide = "bottom"
@@ -13,7 +13,6 @@ local stringRep = string.rep
 local fs = fs
 local fsExists = fs.exists
 local fsOpen = fs.open
-local print = print
 local shellRun = shell.run
 local peripheral = peripheral
 local peripheralIsPresent = peripheral.isPresent
@@ -50,6 +49,8 @@ local topItemsLabel = "TOP ITEMS"
 local topItemsLabelLen = #topItemsLabel
 local topItemsLabelBackground = stringRep("=", topItemsWidth)
 local topItemsBlank = stringRep(" ", topItemsWidth)
+local topItemsItemsSuffix = " items"
+local topItemsItemsSuffixLen = #topItemsItemsSuffix
 
 -- Check if touchpoint is installed
 if not fsExists(apiPath) then
@@ -68,81 +69,85 @@ elseif not peripheralIsPresent(modemSide) then
 end
 
 local mon = peripheral.wrap(monitorSide)
+local monSetBackgroundColor = mon.setBackgroundColor
+local monSetCursorPos = mon.setCursorPos
+local monWrite = mon.write
 
 local tankLevel = 0
 local function drawGraph()
 
     -- Draw essense label
-    mon.setBackgroundColor(colorsBlack)
-    mon.setCursorPos(52, 2)
-    mon.write(tankLabelBackground)
-    mon.setCursorPos(52 + ((tankWidth / 2) - (tankLabelLen / 2)), 2)
-    mon.write(tankLabel)
+    monSetBackgroundColor(colorsBlack)
+    monSetCursorPos(52, 2)
+    monWrite(tankLabelBackground)
+    monSetCursorPos(52 + ((tankWidth / 2) - (tankLabelLen / 2)), 2)
+    monWrite(tankLabel)
 
     -- Draw percentage
-    mon.setCursorPos(52, 3)
-    mon.write(tankBlank)
+    monSetCursorPos(52, 3)
+    monWrite(tankBlank)
 
     local percentage = stringSub(tostring(tankLevel * 100), 1, 5)
 
-    mon.setCursorPos(52 + ((tankWidth / 2) - ((#percentage + 1) / 2)), 3)
-    mon.write(percentage)
-    mon.write("%")
+    monSetCursorPos(52 + ((tankWidth / 2) - ((#percentage + 1) / 2)), 3)
+    monWrite(percentage)
+    monWrite("%")
 
     -- Draw bar
     local h = mathFloor(tankLevel * tankBarHeight)
 
     for i = 0, tankBarHeight do
         if i >= tankBarHeight - h then
-            mon.setBackgroundColor(colorsGreen)
+            monSetBackgroundColor(colorsGreen)
         else
-            mon.setBackgroundColor(colorsGray)
+            monSetBackgroundColor(colorsGray)
         end
-        mon.setCursorPos(52, i + 5)
-        mon.write(tankBlank)
+        monSetCursorPos(52, i + 5)
+        monWrite(tankBlank)
     end
 end
 
 local totalItems = 0
 local items = {}
+local itemsLen = 0
 local function drawTopItems()
     -- Draw top items label
-    mon.setBackgroundColor(colorsBlack)
-    mon.setCursorPos(2, 2)
-    mon.write(topItemsLabelBackground)
-    mon.setCursorPos(2 + ((topItemsWidth / 2) - (topItemsLabelLen / 2)), 2)
-    mon.write(topItemsLabel)
+    monSetBackgroundColor(colorsBlack)
+    monSetCursorPos(2, 2)
+    monWrite(topItemsLabelBackground)
+    monSetCursorPos(2 + ((topItemsWidth / 2) - (topItemsLabelLen / 2)), 2)
+    monWrite(topItemsLabel)
 
     -- Draw total items
     local totalItemsStr = tostring(totalItems)
 
-    mon.setCursorPos(2 +
+    monSetCursorPos(2 +
                          ((topItemsWidth / 2) -
-                             ((#totalItemsStr + #" items") / 2)), 3)
-    mon.write(totalItemsStr)
-    mon.write(" items")
+                             ((#totalItemsStr + topItemsItemsSuffixLen) / 2)), 3)
+    monWrite(totalItemsStr)
+    monWrite(topItemsItemsSuffix)
 
     -- Draw top items
     for i = 1, topItemsHeight do
-        mon.setCursorPos(2, i + 4)
-        mon.write(topItemsBlank)
+        monSetCursorPos(2, i + 4)
+        monWrite(topItemsBlank)
     end
 
     local itemsToDraw = topItemsHeight * 2
 
-    if #items < itemsToDraw then itemsToDraw = #items end
+    if itemsLen < itemsToDraw then itemsToDraw = itemsLen end
 
     for i = 1, itemsToDraw do
         if i > topItemsHeight then
-            mon.setCursorPos(2 + math.ceil(topItemsWidth / 2),
+            monSetCursorPos(2 + math.ceil(topItemsWidth / 2),
                              i + 4 - topItemsHeight)
         else
-            mon.setCursorPos(2, i + 4)
+            monSetCursorPos(2, i + 4)
         end
 
-        mon.write(tostring(items[i].count))
-        mon.write(" - ")
-        mon.write(items[i].name)
+        monWrite(tostring(items[i].count))
+        monWrite(" - ")
+        monWrite(items[i].name)
     end
 
 end
@@ -151,15 +156,16 @@ rednet.open(modemSide)
 
 if not fsExists("items") then
     local file = fsOpen("items", "w")
-    file.write("")
+    file.write("{}")
     file.close()
 end
 
 local itemsFile = fsOpen("items", "r")
 
-items = textutils.unserialize(itemsFile.readAll() or "") or {}
+items = textutils.unserialize(itemsFile.readAll()) or {}
+itemsLen = #items
 
-for i = 1, #items do
+for i = 1, itemsLen do
     local item = items[i]
     totalItems = totalItems + item.count
 end
@@ -208,7 +214,7 @@ while true do
 
             local found = false
 
-            for i = 1, #items do
+            for i = 1, itemsLen do
                 local item = items[i]
                 if item.name == name then
                     item.count = item.count + count
@@ -219,6 +225,7 @@ while true do
 
             if not found then
                 tableInsert(items, {count = count, name = name})
+                itemsLen = itemsLen + 1
             end
 
             tableSort(items, function(a, b)

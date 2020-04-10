@@ -31,7 +31,7 @@ while true do
     local fluidCapacity = tankInfo.capacity
     local contents = tankInfo.contents
     local fluidAmount = 0
-    if contents then fluidAmount = contents.amount end
+    if contents then fluidAmount = contents.amount or 0 end
 
     broadcast({type = "tank", amount = fluidAmount / fluidCapacity})
 

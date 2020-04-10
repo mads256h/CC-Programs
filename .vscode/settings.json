@@ -10,5 +10,6 @@
         "touchpoint",
         "turtle",
         "sleep"
-    ]
+    ],
+    "Lua.runtime.version": "Lua 5.2"
 }
