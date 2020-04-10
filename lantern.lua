@@ -16,5 +16,5 @@ setOutput(redstoneSide, false)
 -- Event loop
 while true do
     local _, _, message = pullEvent("rednet_message")
-    if message.type == "lantern" then setOutput(redstoneSide, message.state) end
+    if message.type or "" == "lantern" then setOutput(redstoneSide, message.state) end
 end
