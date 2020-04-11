@@ -8,27 +8,16 @@ local modemSide = "back"
 local apiPath = "/usr/apis/touchpoint"
 
 -- Moving global objects to local for optimization
-local string = string
 local stringRep = string.rep
-local fs = fs
-local fsExists = fs.exists
-local fsOpen = fs.open
-local shellRun = shell.run
-local peripheral = peripheral
-local peripheralIsPresent = peripheral.isPresent
-local os = os
+local stringSub = string.sub
 local osPullEventRaw = os.pullEventRaw
-local colors = colors
 local colorsBlack = colors.black
 local colorsGreen = colors.green
 local colorsGray = colors.gray
 local tostring = tostring
-local stringSub = string.sub
 local mathFloor = math.floor
 local rsSetOutput = rs.setOutput
-local rednet = rednet
 local rednetBroadcast = rednet.broadcast
-local table = table
 local tableInsert = table.insert
 local tableSort = table.sort
 
@@ -53,18 +42,18 @@ local topItemsItemsSuffix = " items"
 local topItemsItemsSuffixLen = #topItemsItemsSuffix
 
 -- Check if touchpoint is installed
-if not fsExists(apiPath) then
+if not fs.exists(apiPath) then
     print("touchpoint is not installed; installing...")
-    shellRun("pastebin run 4zyreNZy")
-    shellRun("packman install touchpoint")
+    shell.run("pastebin run 4zyreNZy")
+    shell.run("packman install touchpoint")
 end
 
 os.loadAPI("/usr/apis/touchpoint")
 
 -- Check peripherals are where we expect them to be
-if not peripheralIsPresent(monitorSide) then
+if not peripheral.isPresent(monitorSide) then
     error("Monitor is not present")
-elseif not peripheralIsPresent(modemSide) then
+elseif not peripheral.isPresent(modemSide) then
     error("Modem is not present")
 end
 
@@ -154,13 +143,13 @@ end
 
 rednet.open(modemSide)
 
-if not fsExists("items") then
-    local file = fsOpen("items", "w")
+if not fs.exists("items") then
+    local file = fs.open("items", "w")
     file.write("{}")
     file.close()
 end
 
-local itemsFile = fsOpen("items", "r")
+local itemsFile = fs.open("items", "r")
 
 items = textutils.unserialize(itemsFile.readAll()) or {}
 itemsLen = #items
@@ -184,7 +173,7 @@ drawTopItems()
 while true do
     local event = {t:handleEvents(osPullEventRaw())}
     if event[1] == "terminate" then
-        itemsFile = fsOpen("items", "w")
+        itemsFile = fs.open("items", "w")
         itemsFile.write(textutils.serialize(items))
         itemsFile.close()
         return
