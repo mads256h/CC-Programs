@@ -8,7 +8,7 @@ local modemSide = "back"
 local apiPath = "/usr/apis/touchpoint"
 
 -- Moving global objects to local for optimization
-local stringRep = string.rep
+-- Should only be done for objects used in the hot path
 local stringSub = string.sub
 local osPullEventRaw = os.pullEventRaw
 local colorsBlack = colors.black
@@ -31,13 +31,13 @@ local topItemsHeight = 15
 -- String constants
 local tankLabel = "ESSENSE"
 local tankLabelLen = #tankLabel
-local tankLabelBackground = stringRep("=", tankWidth)
-local tankBlank = stringRep(" ", tankWidth)
+local tankLabelBackground = string.rep("=", tankWidth)
+local tankBlank = string.rep(" ", tankWidth)
 
 local topItemsLabel = "TOP ITEMS"
 local topItemsLabelLen = #topItemsLabel
-local topItemsLabelBackground = stringRep("=", topItemsWidth)
-local topItemsBlank = stringRep(" ", topItemsWidth)
+local topItemsLabelBackground = string.rep("=", topItemsWidth)
+local topItemsBlank = string.rep(" ", topItemsWidth)
 local topItemsItemsSuffix = " items"
 local topItemsItemsSuffixLen = #topItemsItemsSuffix
 
